@@ -1,6 +1,6 @@
 <?php
 
-namespace app\apps\models;
+namespace plathir\apps\models;
 
 use Yii;
 
