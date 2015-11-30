@@ -3,6 +3,7 @@
 namespace plathir\apps\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "apps".
@@ -21,6 +22,9 @@ use Yii;
  */
 class Apps extends \yii\db\ActiveRecord
 {
+    public $file;
+    public $FileName;
+    public $Destination;
     
     /**
      * @inheritdoc
@@ -36,8 +40,9 @@ class Apps extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'descr', 'type', 'alias', 'key', 'vendor', 'vendor_email', 'version', 'created_at', 'updated_at'], 'required'],
+            [['name', 'descr', 'type', 'alias', 'key', 'vendor', 'vendor_email', 'version'], 'required'],
             [['descr'], 'string'],
+            [['file'], 'file'],
             [['created_at', 'updated_at'], 'integer'],
             [['name', 'type', 'alias', 'key', 'vendor', 'vendor_email', 'version'], 'string', 'max' => 255]
         ];
@@ -62,4 +67,11 @@ class Apps extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
     }
-}
+
+        public function behaviors() {
+        return [
+            TimestampBehavior::className(),
+        ];
+    }
+    
+    }

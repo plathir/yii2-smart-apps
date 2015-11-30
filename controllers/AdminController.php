@@ -8,11 +8,17 @@ use plathir\apps\models\AppsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * AppsController implements the CRUD actions for Apps model.
+ * @property \plathir\apps\Module $module
  */
 class AdminController extends Controller {
+
+    public function __construct($id, $module) {
+        parent::__construct($id, $module);
+    }
 
     public function behaviors() {
         return [
@@ -101,12 +107,25 @@ class AdminController extends Controller {
     public function actionInstall() {
 
         $model = new Apps();
+        $model->Destination = $this->module->appsExtractPath;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+            $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name);
+            $model->FileName = $this->module->uploadZipPath . '/' . $model->file->name;
+            $this->ExtractFile($model->FileName, $model->Destination);
 
-            return $this->redirect(['index']);
+            $model = $this->FillModelValuesFromAppFiles($model);
+            if ($model->save()) {
+                Yii::$app->getSession()->setFlash('success', 'Application installed ' . $model->FileName);
+                $this->deleteZip($model->FileName);
+                return $this->redirect(['index']);
+            } else {
+                Yii::$app->getSession()->setFlash('danger', 'Application cannot install!');
+                $this->DeleteAppFiles($model->Destination);
+                return $this->redirect(['index']);
+            }
         } else {
-
             return $this->render('install', [
                         'model' => $model,
             ]);
@@ -131,6 +150,79 @@ class AdminController extends Controller {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    /**
+     * 
+     * @param type $filename
+     * @param type $destination
+     * @return boolean
+     */
+    public function ExtractFile($filename, $destination) {
+        $zip = new \ZipArchive();
+        $basename = \basename($filename, ".zip");
+
+        if ($zip->open($filename) === TRUE) {
+            $zip->extractTo($destination . '/' . $basename);
+            $zip->close();
+            return true;
+        } else {
+            echo false;
+        }
+    }
+
+    /**
+     * 
+     * @param type $model
+     * @return boolean
+     */
+    public function FillModelValuesFromAppFiles($model) {
+        // parse xml config files and fill $model data to store in Apps table 
+        //....
+        $model->name = 'test name';
+        $model->descr = 'test descr';
+        $model->type = 'test type';
+        $model->alias = 'test alias';
+        $model->key = 'test key';
+        $model->vendor = 'test vendor';
+        $model->vendor_email = 'test vendor email';
+        $model->version = 'test version';
+        return $model;
+    }
+
+    /**
+     * 
+     * @param string $dirPath
+     * @throws InvalidArgumentException
+     */
+    public function DeleteAppFiles($dirPath) {
+
+        if (!is_dir($dirPath)) {
+            throw new InvalidArgumentException("$dirPath must be a directory");
+        }
+        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+            $dirPath .= '/';
+        }
+        $files = glob($dirPath . '*', GLOB_MARK);
+        foreach ($files as $file) {
+            if (is_dir($file)) {
+                self::DeleteAppFiles($file);
+            } else {
+                unlink($file);
+            }
+        }
+        rmdir($dirPath);
+    }
+
+    /**
+     * 
+     * @param type $filename
+     * @return type
+     */
+    public function deleteZip($filename) {
+        if (file_exists($filename)) {
+            return unlink($filename);
         }
     }
 

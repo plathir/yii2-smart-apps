@@ -10,11 +10,10 @@ class DashboardController extends Controller {
 
     public function actionIndex() {
         $searchModel = new AppsSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
+        $applications = $searchModel->find()->all();
         return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+                    'applications' => $applications,
         ]);
     }
+
 }

@@ -6,8 +6,7 @@ use yii\web\Model;
 
 class AppZip extends \yii\web\model {
 
-    public $FileName;
-    public $Destination;
+
 
     public function ExtractFile() {
         $zip = new ZipArchive;
