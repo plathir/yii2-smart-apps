@@ -226,4 +226,16 @@ class AdminController extends Controller {
         }
     }
 
+    public function LoadInitXML($xml_file) {
+    
+        
+        return true;
+    }
+    
+    public function validateAppFiles($appname) {
+        
+        
+        return true;
+    }
+    
 }
