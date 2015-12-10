@@ -105,6 +105,10 @@ class AdminController extends Controller {
         return $this->redirect(['index']);
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function actionInstall() {
 
         $model = new Apps();
@@ -113,27 +117,7 @@ class AdminController extends Controller {
         if ($model->load(Yii::$app->request->post())) {
             if (($model->file = UploadedFile::getInstance($model, 'file')) &&
                     ( $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name) ) && ($model->FileName = $this->module->uploadZipPath . '/' . $model->file->name )) {
-                if ($this->ExtractFile($model->FileName, $model->Destination)) {
-                    $model = $this->FillModelValuesFromAppFiles($model);
-                    if ($model != null && ($model->save())) {
-
-                        Yii::$app->getSession()->setFlash('success', 'Application installed ' . $model->FileName);
-                        $this->deleteZip($model->FileName);
-                        return $this->redirect(['index']);
-                    } else {
-                        $errors = $model->errors;
-                        foreach ($errors as $error) {
-                            Yii::$app->getSession()->setFlash('danger', $error[0] . '<br> Installation aborted !');
-                        }
-
-                        $this->deleteZip($model->FileName);
-                        return $this->redirect(['index']);
-                    }
-                } else {
-                    Yii::$app->getSession()->setFlash('danger', 'Application cannot extract !');
-                    $this->deleteZip($model->FileName);
-                    return $this->redirect(['index']);
-                }
+                $this->ExtractAndInstallApp($model);
             } else {
                 Yii::$app->getSession()->setFlash('danger', 'Application cannot upload !');
                 return $this->redirect(['index']);
@@ -142,6 +126,45 @@ class AdminController extends Controller {
             return $this->render('install', [
                         'model' => $model,
             ]);
+        }
+    }
+
+    /**
+     * 
+     * @param type $model
+     * @return type
+     */
+    public function ExtractAndInstallApp($model) {
+
+        if ($this->ExtractFile($model->FileName, $model->Destination)) {
+            $model = $this->FillModelValuesFromAppFiles($model);
+            $this->installApp($model);
+        } else {
+            Yii::$app->getSession()->setFlash('danger', 'Application cannot extract !');
+            $this->deleteZip($model->FileName);
+            return $this->redirect(['index']);
+        }
+    }
+
+    /**
+     * 
+     * @param type $model
+     * @return type
+     */
+    public function installApp($model) {
+        if ($model != null && ($model->save())) {
+            Yii::$app->getSession()->setFlash('success', 'Application installed ' . $model->FileName);
+            $this->deleteZip($model->FileName);
+            return $this->redirect(['index']);
+        } else {
+            $errors = $model->errors;
+            foreach ($errors as $error) {
+                Yii::$app->getSession()->setFlash('danger', $error[0] . '<br> Installation aborted !');
+            }
+
+            $this->deleteZip($model->FileName);
+            $this->DeleteAppFiles($model->Destination . '/' . \basename($model->file->name, ".zip"));
+            return $this->redirect(['index']);
         }
     }
 
@@ -194,12 +217,9 @@ class AdminController extends Controller {
 
         $model->name = \basename($model->FileName, ".zip");
         $appDir = $model->Destination . '/' . $model->name;
-
         $xmlFile = $appDir . '/' . $model->name . '.xml';
-        if (!\file_exists($xmlFile)) {
-            throw new UserException("xml config file not found !");
-        }
-        $xml = \simplexml_load_file($xmlFile);
+        $xml = $this->LoadInitXML($xmlFile);
+
         if ($xml === false) {
             $message = "Failed loading XML: ";
             foreach (libxml_get_errors() as $error) {
@@ -253,10 +273,11 @@ class AdminController extends Controller {
         }
     }
 
-    public function LoadInitXML($xml_file) {
-
-
-        return true;
+    public function LoadInitXML($xmlFile) {
+        if (!\file_exists($xmlFile)) {
+            throw new UserException("xml config file not found !");
+        }
+        return \simplexml_load_file($xmlFile);
     }
 
     public function validateAppFiles($appname) {
