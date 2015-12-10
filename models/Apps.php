@@ -41,6 +41,7 @@ class Apps extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'descr', 'type', 'alias', 'key', 'vendor', 'vendor_email', 'version'], 'required'],
+            [['name'], 'unique'],
             [['descr'], 'string'],
             [['file'], 'file'],
             [['created_at', 'updated_at'], 'integer'],

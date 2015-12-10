@@ -9,6 +9,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
+use yii\base\UserException;
 
 /**
  * AppsController implements the CRUD actions for Apps model.
@@ -110,19 +111,31 @@ class AdminController extends Controller {
         $model->Destination = $this->module->appsExtractPath;
 
         if ($model->load(Yii::$app->request->post())) {
-            $model->file = UploadedFile::getInstance($model, 'file');
-            $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name);
-            $model->FileName = $this->module->uploadZipPath . '/' . $model->file->name;
-            $this->ExtractFile($model->FileName, $model->Destination);
+            if (($model->file = UploadedFile::getInstance($model, 'file')) &&
+                    ( $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name) ) && ($model->FileName = $this->module->uploadZipPath . '/' . $model->file->name )) {
+                if ($this->ExtractFile($model->FileName, $model->Destination)) {
+                    $model = $this->FillModelValuesFromAppFiles($model);
+                    if ($model != null && ($model->save())) {
 
-            $model = $this->FillModelValuesFromAppFiles($model);
-            if ($model->save()) {
-                Yii::$app->getSession()->setFlash('success', 'Application installed ' . $model->FileName);
-                $this->deleteZip($model->FileName);
-                return $this->redirect(['index']);
+                        Yii::$app->getSession()->setFlash('success', 'Application installed ' . $model->FileName);
+                        $this->deleteZip($model->FileName);
+                        return $this->redirect(['index']);
+                    } else {
+                        $errors = $model->errors;
+                        foreach ($errors as $error) {
+                            Yii::$app->getSession()->setFlash('danger', $error[0] . '<br> Installation aborted !');
+                        }
+
+                        $this->deleteZip($model->FileName);
+                        return $this->redirect(['index']);
+                    }
+                } else {
+                    Yii::$app->getSession()->setFlash('danger', 'Application cannot extract !');
+                    $this->deleteZip($model->FileName);
+                    return $this->redirect(['index']);
+                }
             } else {
-                Yii::$app->getSession()->setFlash('danger', 'Application cannot install!');
-                $this->DeleteAppFiles($model->Destination);
+                Yii::$app->getSession()->setFlash('danger', 'Application cannot upload !');
                 return $this->redirect(['index']);
             }
         } else {
@@ -178,17 +191,31 @@ class AdminController extends Controller {
      * @return boolean
      */
     public function FillModelValuesFromAppFiles($model) {
-        // parse xml config files and fill $model data to store in Apps table 
-        //....
-        $model->name = 'test name';
-        $model->descr = 'test descr';
-        $model->type = 'test type';
-        $model->alias = 'test alias';
-        $model->key = 'test key';
-        $model->vendor = 'test vendor';
-        $model->vendor_email = 'test vendor email';
-        $model->version = 'test version';
-        return $model;
+
+        $model->name = \basename($model->FileName, ".zip");
+        $appDir = $model->Destination . '/' . $model->name;
+
+        $xmlFile = $appDir . '/' . $model->name . '.xml';
+        if (!\file_exists($xmlFile)) {
+            throw new UserException("xml config file not found !");
+        }
+        $xml = \simplexml_load_file($xmlFile);
+        if ($xml === false) {
+            $message = "Failed loading XML: ";
+            foreach (libxml_get_errors() as $error) {
+                echo $message .= "<br>", $error->message;
+            }
+            throw new UserException($message);
+        } else {
+            $model->descr = (string) $xml->description;
+            $model->type = (string) $xml->type;
+            $model->alias = (string) $xml->alias;
+            $model->key = (string) $xml->key;
+            $model->vendor = (string) $xml->vendor;
+            $model->vendor_email = (string) $xml->vendor_email;
+            $model->version = (string) $xml->version;
+            return $model;
+        }
     }
 
     /**
@@ -227,15 +254,15 @@ class AdminController extends Controller {
     }
 
     public function LoadInitXML($xml_file) {
-    
-        
+
+
         return true;
     }
-    
+
     public function validateAppFiles($appname) {
-        
-        
+
+
         return true;
     }
-    
+
 }
