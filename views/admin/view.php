@@ -37,8 +37,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'vendor',
             'vendor_email:email',
             'version',
-            'created_at',
-            'updated_at',
+            'created_at:datetime',
+            'updated_at:datetime',
         ],
     ]) ?>
 

@@ -27,7 +27,7 @@ class AdminController extends Controller {
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['post'],
-                //    'uninstall' => ['post'],
+                    'uninstall' => ['post'],
                 ],
             ],
         ];
@@ -138,6 +138,7 @@ class AdminController extends Controller {
 
         if ($this->ExtractFile($model->FileName, $model->Destination)) {
             $model = $this->FillModelValuesFromAppFiles($model);
+            $this->MigrateUp($model->name);
             $this->installApp($model);
         } else {
             Yii::$app->getSession()->setFlash('danger', 'Application cannot extract !');
@@ -161,17 +162,42 @@ class AdminController extends Controller {
             foreach ($errors as $error) {
                 Yii::$app->getSession()->setFlash('danger', $error[0] . '<br> Installation aborted !');
             }
-
             $this->deleteZip($model->FileName);
-            $this->DeleteAppFiles($model->Destination . '/' . \basename($model->file->name, ".zip"));
+            // search if application with same name exists
+            $h_model = \plathir\apps\models\Apps::find()->where(['name' => $model->name]);
+            if ($h_model == null) {
+                // Delete application files only if another application exist         
+                $this->DeleteAppFiles($model->Destination . '/' . \basename($model->file->name, ".zip"));
+            }
             return $this->redirect(['index']);
         }
     }
 
+    /**
+     * 
+     * @param type $id
+     * @return type
+     */
     public function actionUninstall($id) {
-        $model = $this->findModel($id);
+        $this->UninstallApp($id);
+        return $this->redirect(['index']);
+    }
 
-        return $this->render('uninstall');
+    /**
+     * 
+     * @param type $id
+     */
+    public function UninstallApp($id) {
+
+        $appName = $this->findModel($id)->name;
+        $destination = $this->module->appsExtractPath;
+        if ($this->findModel($id)->delete()) {
+            $this->MigrateDown($appName);
+            $this->DeleteAppFiles($destination . '/' . $appName);
+            Yii::$app->getSession()->setFlash('success', 'Uninstall Application : ' . $appName . ' succesfull !');
+        } else {
+            Yii::$app->getSession()->setFlash('danger' . 'Application : ' . $appName . ' cannot uninstall !');
+        }
     }
 
     /**
@@ -284,6 +310,32 @@ class AdminController extends Controller {
 
 
         return true;
+    }
+
+    public function MigrateUp($appName) {
+        $oldApp = \Yii::$app;
+        new \yii\console\Application([
+            'id' => 'Command runner',
+            'basePath' => '@app',
+            'components' => [
+                'db' => $oldApp->db,
+            ],
+        ]);
+        \Yii::$app->runAction('migrate/up', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
+        \Yii::$app = $oldApp;
+    }
+
+    public function MigrateDown($appName) {
+        $oldApp = \Yii::$app;
+        new \yii\console\Application([
+            'id' => 'Command runner',
+            'basePath' => '@app',
+            'components' => [
+                'db' => $oldApp->db,
+            ],
+        ]);
+        \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
+        \Yii::$app = $oldApp;
     }
 
 }
