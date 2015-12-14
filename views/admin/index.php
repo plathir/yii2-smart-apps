@@ -21,6 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a(Yii::t('app', 'Install Apps'), ['install'], ['class' => 'btn btn-success']) ?>
     </p>
 
+    
     <?=
     GridView::widget([
         'dataProvider' => $dataProvider,

@@ -299,6 +299,12 @@ class AdminController extends Controller {
         }
     }
 
+    /**
+     * 
+     * @param type $xmlFile
+     * @return type
+     * @throws UserException
+     */
     public function LoadInitXML($xmlFile) {
         if (!\file_exists($xmlFile)) {
             throw new UserException("xml config file not found !");
@@ -306,36 +312,53 @@ class AdminController extends Controller {
         return \simplexml_load_file($xmlFile);
     }
 
+    /**
+     * 
+     * @param type $appname
+     * @return boolean
+     */
     public function validateAppFiles($appname) {
 
 
         return true;
     }
 
+    /**
+     * 
+     * @param type $appName
+     */
     public function MigrateUp($appName) {
-        $oldApp = \Yii::$app;
-        new \yii\console\Application([
-            'id' => 'Command runner',
-            'basePath' => '@app',
-            'components' => [
-                'db' => $oldApp->db,
-            ],
-        ]);
-        \Yii::$app->runAction('migrate/up', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
-        \Yii::$app = $oldApp;
+        if (\file_exists(Yii::getAlias('@apps') . '/migrations')) {
+            $oldApp = \Yii::$app;
+            new \yii\console\Application([
+                'id' => 'Command runner',
+                'basePath' => '@app',
+                'components' => [
+                    'db' => $oldApp->db,
+                ],
+            ]);
+            \Yii::$app->runAction('migrate/up', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
+            \Yii::$app = $oldApp;
+        }
     }
 
+    /**
+     * 
+     * @param type $appName
+     */
     public function MigrateDown($appName) {
-        $oldApp = \Yii::$app;
-        new \yii\console\Application([
-            'id' => 'Command runner',
-            'basePath' => '@app',
-            'components' => [
-                'db' => $oldApp->db,
-            ],
-        ]);
-        \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
-        \Yii::$app = $oldApp;
+        if (\file_exists(Yii::getAlias('@apps') . '/migrations')) {
+            $oldApp = \Yii::$app;
+            new \yii\console\Application([
+                'id' => 'Command runner',
+                'basePath' => '@app',
+                'components' => [
+                    'db' => $oldApp->db,
+                ],
+            ]);
+            \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
+            \Yii::$app = $oldApp;
+        }
     }
 
 }
