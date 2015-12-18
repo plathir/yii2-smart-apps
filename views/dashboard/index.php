@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>
                         <div class="panel-body">
                             <p><?= $application->descr ?></p>
-                            <?= Html::a('More &raquo;', ['#'], ['class' => 'btn btn-default btn-flat']) ?>  
+                            <?= Html::a('More &raquo;', ["/$application->name"], ['class' => 'btn btn-default btn-flat']) ?>  
                         </div>
                     </div>
                 </div>

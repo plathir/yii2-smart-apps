@@ -311,25 +311,16 @@ class AdminController extends Controller {
         }
         return \simplexml_load_file($xmlFile);
     }
-
-    /**
-     * 
-     * @param type $appname
-     * @return boolean
-     */
-    public function validateAppFiles($appname) {
-
-
-        return true;
-    }
-
+    
     /**
      * 
      * @param type $appName
      */
     public function MigrateUp($appName) {
-        if (\file_exists(Yii::getAlias('@apps') . '/migrations')) {
+
+        if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
             $oldApp = \Yii::$app;
+
             new \yii\console\Application([
                 'id' => 'Command runner',
                 'basePath' => '@app',
@@ -347,7 +338,7 @@ class AdminController extends Controller {
      * @param type $appName
      */
     public function MigrateDown($appName) {
-        if (\file_exists(Yii::getAlias('@apps') . '/migrations')) {
+        if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
             $oldApp = \Yii::$app;
             new \yii\console\Application([
                 'id' => 'Command runner',
@@ -356,7 +347,7 @@ class AdminController extends Controller {
                     'db' => $oldApp->db,
                 ],
             ]);
-            \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
+            \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/' . DIRECTORY_SEPARATOR, 'interactive' => false]);
             \Yii::$app = $oldApp;
         }
     }
