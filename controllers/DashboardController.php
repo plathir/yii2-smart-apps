@@ -10,7 +10,7 @@ class DashboardController extends Controller {
 
     public function actionIndex() {
         $searchModel = new AppsSearch();
-        $applications = $searchModel->find()->all();
+        $applications = $searchModel->find()->where(['active' => true])->all();
         return $this->render('index', [
                     'applications' => $applications,
         ]);

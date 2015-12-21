@@ -19,7 +19,7 @@ class AppsSearch extends Apps
     {
         return [
             [['id', 'created_at', 'updated_at'], 'integer'],
-            [['name', 'descr', 'type', 'alias', 'key', 'vendor', 'vendor_email', 'version'], 'safe'],
+            [['name', 'descr', 'type', 'alias', 'app_key', 'vendor', 'vendor_email', 'version', 'active'], 'safe'],
         ];
     }
 
@@ -65,7 +65,8 @@ class AppsSearch extends Apps
             ->andFilterWhere(['like', 'descr', $this->descr])
             ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'alias', $this->alias])
-            ->andFilterWhere(['like', 'key', $this->key])
+            ->andFilterWhere(['like', 'app_key', $this->app_key])
+            ->andFilterWhere(['like', 'active', $this->active])
             ->andFilterWhere(['like', 'vendor', $this->vendor])
             ->andFilterWhere(['like', 'vendor_email', $this->vendor_email])
             ->andFilterWhere(['like', 'version', $this->version]);

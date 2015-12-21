@@ -40,12 +40,12 @@ class Apps extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'descr', 'type', 'alias', 'key', 'vendor', 'vendor_email', 'version'], 'required'],
+            [['name', 'descr', 'type', 'alias', 'app_key', 'vendor', 'vendor_email', 'version'], 'required'],
             [['name'], 'unique'],
             [['descr'], 'string'],
             [['file'], 'file'],
             [['created_at', 'updated_at'], 'integer'],
-            [['name', 'type', 'alias', 'key', 'vendor', 'vendor_email', 'version'], 'string', 'max' => 255]
+            [['name', 'type', 'alias', 'app_key', 'vendor', 'vendor_email', 'version'], 'string', 'max' => 255]
         ];
     }
 
@@ -60,7 +60,7 @@ class Apps extends \yii\db\ActiveRecord
             'descr' => Yii::t('app', 'Descr'),
             'type' => Yii::t('app', 'Type'),
             'alias' => Yii::t('app', 'Alias'),
-            'key' => Yii::t('app', 'Key'),
+            'app_key' => Yii::t('app', 'App Key'),
             'vendor' => Yii::t('app', 'Vendor'),
             'vendor_email' => Yii::t('app', 'Vendor Email'),
             'version' => Yii::t('app', 'Version'),

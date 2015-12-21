@@ -27,6 +27,7 @@ class AdminController extends Controller {
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['post'],
+                    'activate' => ['post'],
                     'uninstall' => ['post'],
                 ],
             ],
@@ -56,53 +57,6 @@ class AdminController extends Controller {
         return $this->render('view', [
                     'model' => $this->findModel($id),
         ]);
-    }
-
-    /**
-     * Creates a new Apps model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate() {
-        $model = new Apps();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                        'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Updates an existing Apps model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id) {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                        'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Deletes an existing Apps model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionDelete($id) {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
     }
 
     /**
@@ -256,7 +210,7 @@ class AdminController extends Controller {
             $model->descr = (string) $xml->description;
             $model->type = (string) $xml->type;
             $model->alias = (string) $xml->alias;
-            $model->key = (string) $xml->key;
+            $model->app_key = (string) $xml->key;
             $model->vendor = (string) $xml->vendor;
             $model->vendor_email = (string) $xml->vendor_email;
             $model->version = (string) $xml->version;
@@ -351,5 +305,29 @@ class AdminController extends Controller {
             \Yii::$app = $oldApp;
         }
     }
-
+    
+    
+ /**
+  * Activate Deactivate toggle Apps
+  * @param type $id
+  * @return type
+  * @throws yii\web\NotFoundHttpException
+  */
+    public function actionActivate($id) {
+        
+        if ($module = $this->findModel($id)) {
+           if ( $module->active == true ) {
+             $module->active = false;
+             $module->update();
+             return $this->redirect(['index']);
+           } else {
+             $module->active = true;
+             $module->update();
+             return $this->redirect(['index']);
+           }
+        } else {
+            throw new yii\web\NotFoundHttpException('');
+        }
+    }
+    
 }
