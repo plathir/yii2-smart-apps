@@ -13,6 +13,13 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="apps-index">
     <div class="row">
         <?php foreach ($applications as $application) { ?>
+            <?php
+            $bundle = null;
+            $h_text = '$bundle = apps' . '\\' . $application->name . '\\backend\\' . $application->name . 'Asset::register($this);';
+            eval($h_text);
+
+            $img = $bundle->baseUrl . $application->app_icon;
+            ?>
             <div class="col-lg-3 col-md-6 col-xs-12" >
                 <div class="thumbnail"> 
                     <div class="panel panel-default">
@@ -20,7 +27,10 @@ $this->params['breadcrumbs'][] = $this->title;
                         <div class="panel-heading">
                             <h3><?= $application->name ?></h3>
                         </div>
+
                         <div class="panel-body">
+                            <?php // echo $img;  ?>
+                            <img src="<?php echo $img ?>">
                             <p><?= $application->descr ?></p>
                             <?= Html::a('More &raquo;', ["/$application->name"], ['class' => 'btn btn-default btn-flat']) ?>  
                         </div>

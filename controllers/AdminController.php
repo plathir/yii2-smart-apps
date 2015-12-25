@@ -214,6 +214,7 @@ class AdminController extends Controller {
             $model->vendor = (string) $xml->vendor;
             $model->vendor_email = (string) $xml->vendor_email;
             $model->version = (string) $xml->version;
+            $model->app_icon = (string) $xml->app_icon;
             return $model;
         }
     }

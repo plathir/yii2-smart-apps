@@ -17,6 +17,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $vendor
  * @property string $vendor_email
  * @property string $version
+ * @property string $app_icon
  * @property integer $created_at
  * @property integer $updated_at
  */
@@ -45,7 +46,7 @@ class Apps extends \yii\db\ActiveRecord
             [['descr'], 'string'],
             [['file'], 'file'],
             [['created_at', 'updated_at'], 'integer'],
-            [['name', 'type', 'alias', 'app_key', 'vendor', 'vendor_email', 'version'], 'string', 'max' => 255]
+            [['name', 'type', 'alias', 'app_key', 'vendor', 'vendor_email', 'version', 'app_icon'], 'string', 'max' => 255]
         ];
     }
 
@@ -64,6 +65,7 @@ class Apps extends \yii\db\ActiveRecord
             'vendor' => Yii::t('app', 'Vendor'),
             'vendor_email' => Yii::t('app', 'Vendor Email'),
             'version' => Yii::t('app', 'Version'),
+            'app_icon' => Yii::t('app', 'App Icon'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];

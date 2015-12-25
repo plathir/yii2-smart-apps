@@ -1,12 +1,13 @@
 <?php
-
 namespace plathir\apps\helpers;
+
+use plathir\apps\models\AppsSearch;
 
 class AppsHelper {
 
     public function getAppsList() {
         $searchModel = new AppsSearch();
-        $appsList =  $searchModel->find()->where(['name' => 'apptest1', 'active' => true])->all();
+        $appsList =  $searchModel->find()->where(['active' => true])->all();
         return $appsList;
     }
     
