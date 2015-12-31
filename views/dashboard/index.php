@@ -29,10 +29,15 @@ $this->params['breadcrumbs'][] = $this->title;
                         </div>
 
                         <div class="panel-body">
-                            <?php // echo $img;  ?>
-                            <img src="<?php echo $img ?>">
+                            <?php
+                            echo Html::a(Html::img($img, ['alt' => '...',
+                                        'width' => '80',
+                                            ]
+                                    ), ["/$application->name"], ['class' => 'btn btn-default']);
+                            ?>
                             <p><?= $application->descr ?></p>
                             <?= Html::a('More &raquo;', ["/$application->name"], ['class' => 'btn btn-default btn-flat']) ?>  
+                            <?= Html::a('Settings &raquo;', ["/$application->name".'/settings'], ['class' => 'btn btn-default btn-flat']) ?>  
                         </div>
                     </div>
                 </div>

@@ -12,7 +12,7 @@ class AppsHelper {
     }
     
     
-    public function getAppMenu($id) {
+    public function getAppMenuBackend($id) {
         // get menu items for application
         
         return $appMenu;
