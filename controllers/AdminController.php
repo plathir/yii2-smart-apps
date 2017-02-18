@@ -266,7 +266,7 @@ class AdminController extends Controller {
         }
         return \simplexml_load_file($xmlFile);
     }
-    
+
     /**
      * 
      * @param type $appName
@@ -275,16 +275,20 @@ class AdminController extends Controller {
 
         if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
             $oldApp = \Yii::$app;
+            $file_stdout = Yii::getAlias('@apps/') . DIRECTORY_SEPARATOR . $appName . '_migration_stdout.txt';
+            if (!defined('STDOUT')) {
+                define('STDOUT', fopen($file_stdout, 'w'));
+            }
 
-            new \yii\console\Application([
-                'id' => 'Command runner',
-                'basePath' => '@app',
-                'components' => [
-                    'db' => $oldApp->db,
-                ],
-            ]);
-            \Yii::$app->runAction('migrate/up', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => false]);
-            \Yii::$app = $oldApp;
+            $migration = new \yii\console\controllers\MigrateController('migrate', Yii::$app);
+            $migration->runAction('up', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => FALSE]);
+
+//            $handle = fopen('/tmp/stdout', 'r');
+//            $message = '';
+//            while (($buffer = fgets($handle, 4096)) !== false) {
+//                $message .= $buffer . "<br>";
+//            }
+//            fclose($handle);
         }
     }
 
@@ -294,41 +298,50 @@ class AdminController extends Controller {
      */
     public function MigrateDown($appName) {
         if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
-            $oldApp = \Yii::$app;
-            new \yii\console\Application([
-                'id' => 'Command runner',
-                'basePath' => '@app',
-                'components' => [
-                    'db' => $oldApp->db,
-                ],
-            ]);
-            \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/' . DIRECTORY_SEPARATOR, 'interactive' => false]);
-            \Yii::$app = $oldApp;
+            $file_stdout = Yii::getAlias('@apps/') . DIRECTORY_SEPARATOR . $appName . '_migration_stdout.txt';
+
+            if (!defined('STDOUT')) {
+                define('STDOUT', fopen($file_stdout, 'w'));
+            }
+
+            $migration = new \yii\console\controllers\MigrateController('migrate', Yii::$app);
+            $migration->runAction('down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => FALSE]);
+
+
+//            $oldApp = \Yii::$app;
+//            new \yii\console\Application([
+//                'id' => 'Command runner',
+//                'basePath' => '@app',
+//                'components' => [
+//                    'db' => $oldApp->db,
+//                ],
+//            ]);
+//            \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/' . DIRECTORY_SEPARATOR, 'interactive' => false]);
+//            \Yii::$app = $oldApp;
         }
     }
-    
-    
- /**
-  * Activate Deactivate toggle Apps
-  * @param type $id
-  * @return type
-  * @throws yii\web\NotFoundHttpException
-  */
+
+    /**
+     * Activate Deactivate toggle Apps
+     * @param type $id
+     * @return type
+     * @throws yii\web\NotFoundHttpException
+     */
     public function actionActivate($id) {
-        
+
         if ($module = $this->findModel($id)) {
-           if ( $module->active == true ) {
-             $module->active = false;
-             $module->update();
-             return $this->redirect(['index']);
-           } else {
-             $module->active = true;
-             $module->update();
-             return $this->redirect(['index']);
-           }
+            if ($module->active == true) {
+                $module->active = false;
+                $module->update();
+                return $this->redirect(['index']);
+            } else {
+                $module->active = true;
+                $module->update();
+                return $this->redirect(['index']);
+            }
         } else {
             throw new yii\web\NotFoundHttpException('');
         }
     }
-    
+
 }
