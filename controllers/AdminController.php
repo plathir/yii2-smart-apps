@@ -108,6 +108,11 @@ class AdminController extends Controller {
      */
     public function installApp($model) {
         if ($model != null && ($model->save())) {
+            $classname = 'apps\\' . $model->name . '\backend\helper\Permissions';
+            if (class_exists($classname)) {
+                $permissions = new $classname;
+                $permissions->create();
+            }
             Yii::$app->getSession()->setFlash('success', 'Application installed ' . $model->FileName);
             $this->deleteZip($model->FileName);
             return $this->redirect(['index']);
@@ -146,6 +151,11 @@ class AdminController extends Controller {
         $appName = $this->findModel($id)->name;
         $destination = $this->module->appsExtractPath;
         if ($this->findModel($id)->delete()) {
+            $classname = 'apps\\' . $appName . '\backend\helper\Permissions';
+            if (class_exists($classname)) {
+                $permissions = new $classname;
+                $permissions->remove();
+            }
             $this->MigrateDown($appName);
             $this->DeleteAppFiles($destination . '/' . $appName);
             Yii::$app->getSession()->setFlash('success', 'Uninstall Application : ' . $appName . ' succesfull !');
