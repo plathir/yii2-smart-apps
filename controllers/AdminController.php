@@ -39,13 +39,17 @@ class AdminController extends Controller {
      * @return mixed
      */
     public function actionIndex() {
-        $searchModel = new AppsSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        if (\yii::$app->user->can('AppsIndex')) {
+            $searchModel = new AppsSearch();
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
-        ]);
+            return $this->render('index', [
+                        'searchModel' => $searchModel,
+                        'dataProvider' => $dataProvider,
+            ]);
+        } else {
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Apps Admin'));
+        }
     }
 
     /**
@@ -54,9 +58,13 @@ class AdminController extends Controller {
      * @return mixed
      */
     public function actionView($id) {
-        return $this->render('view', [
-                    'model' => $this->findModel($id),
-        ]);
+        if (\yii::$app->user->can('AppsView')) {
+            return $this->render('view', [
+                        'model' => $this->findModel($id),
+            ]);
+        } else {
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Apps View'));
+        }
     }
 
     /**
@@ -64,22 +72,26 @@ class AdminController extends Controller {
      * @return type
      */
     public function actionInstall() {
+        if (\yii::$app->user->can('AppsInstall')) {
+            $model = new Apps();
+            $model->Destination = $this->module->appsExtractPath;
 
-        $model = new Apps();
-        $model->Destination = $this->module->appsExtractPath;
+            if ($model->load(Yii::$app->request->post())) {
+                if (($model->file = UploadedFile::getInstance($model, 'file')) &&
+                        ( $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name) ) && ($model->FileName = $this->module->uploadZipPath . '/' . $model->file->name )) {
 
-        if ($model->load(Yii::$app->request->post())) {
-            if (($model->file = UploadedFile::getInstance($model, 'file')) &&
-                    ( $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name) ) && ($model->FileName = $this->module->uploadZipPath . '/' . $model->file->name )) {
-                $this->ExtractAndInstallApp($model);
+                    $this->ExtractAndInstallApp($model);
+                } else {
+                    Yii::$app->getSession()->setFlash('danger', 'Application cannot upload !');
+                    return $this->redirect(['index']);
+                }
             } else {
-                Yii::$app->getSession()->setFlash('danger', 'Application cannot upload !');
-                return $this->redirect(['index']);
+                return $this->render('install', [
+                            'model' => $model,
+                ]);
             }
         } else {
-            return $this->render('install', [
-                        'model' => $model,
-            ]);
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Install Apps '));
         }
     }
 
@@ -113,13 +125,13 @@ class AdminController extends Controller {
                 $permissions = new $classname;
                 $permissions->create();
             }
-            
+
             $classname = 'apps\\' . $model->name . '\backend\helper\Settings';
             if (class_exists($classname)) {
                 $settings = new $classname;
                 $settings->create();
             }
-            
+
             Yii::$app->getSession()->setFlash('success', 'Application installed ' . $model->FileName);
             $this->deleteZip($model->FileName);
             return $this->redirect(['index']);
@@ -130,7 +142,7 @@ class AdminController extends Controller {
             }
             $this->deleteZip($model->FileName);
             // search if application with same name exists
-            $h_model = \plathir\apps\models\Apps::find()->where(['name' => $model->name]);
+            $h_model = \plathir\apps\models\Apps::find()->where(['name' => $model->name])->One();
             if ($h_model == null) {
                 // Delete application files only if another application exist         
                 $this->DeleteAppFiles($model->Destination . '/' . \basename($model->file->name, ".zip"));
@@ -145,8 +157,12 @@ class AdminController extends Controller {
      * @return type
      */
     public function actionUninstall($id) {
-        $this->UninstallApp($id);
-        return $this->redirect(['index']);
+        if (\yii::$app->user->can('AppsUninstall')) {
+            $this->UninstallApp($id);
+            return $this->redirect(['index']);
+        } else {
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Uninstall Apps '));
+        }
     }
 
     /**
@@ -167,7 +183,7 @@ class AdminController extends Controller {
             if (class_exists($classname)) {
                 $settings = new $classname;
                 $settings->remove();
-            }            
+            }
             $this->MigrateDown($appName);
             $this->DeleteAppFiles($destination . '/' . $appName);
             Yii::$app->getSession()->setFlash('success', 'Uninstall Application : ' . $appName . ' succesfull !');
@@ -184,7 +200,8 @@ class AdminController extends Controller {
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id) {
-        if (($model = Apps::findOne($id)) !== null) {
+        $model = Apps::findOne($id);
+        if ($model != null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -289,11 +306,36 @@ class AdminController extends Controller {
         return \simplexml_load_file($xmlFile);
     }
 
+
     /**
      * 
      * @param type $appName
      */
     public function MigrateUp($appName) {
+            $classname = 'apps\\' . $appName . '\migrations\AppMigration';
+            if (class_exists($classname)) {
+                $migration = new $classname;
+                $migration->up();
+            }
+    }
+
+    /**
+     * 
+     * @param type $appName
+     */
+    public function MigrateDown($appName) {
+            $classname = 'apps\\' . $appName . '\migrations\AppMigration';
+            if (class_exists($classname)) {
+                $migration = new $classname;
+                $migration->down();
+            }
+    }
+
+    /**
+     * 
+     * @param type $appName
+     */
+    public function MigrateUp1($appName) {
 
         if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
             $oldApp = \Yii::$app;
@@ -318,17 +360,18 @@ class AdminController extends Controller {
      * 
      * @param type $appName
      */
-    public function MigrateDown($appName) {
+    public function MigrateDown1($appName) {
+
         if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
-            $file_stdout = Yii::getAlias('@apps/') . DIRECTORY_SEPARATOR . $appName . '_migration_stdout.txt';
+            $file_stdout = Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . '_migration_stdout.txt';
 
             if (!defined('STDOUT')) {
                 define('STDOUT', fopen($file_stdout, 'w'));
             }
-
             $migration = new \yii\console\controllers\MigrateController('migrate', Yii::$app);
-            $migration->runAction('down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => FALSE]);
 
+            $migration->runAction('down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => FALSE]);
+            $migration->init();
 
 //            $oldApp = \Yii::$app;
 //            new \yii\console\Application([
@@ -350,19 +393,23 @@ class AdminController extends Controller {
      * @throws yii\web\NotFoundHttpException
      */
     public function actionActivate($id) {
+        if (\yii::$app->user->can('AppsActivate')) {
 
-        if ($module = $this->findModel($id)) {
-            if ($module->active == true) {
-                $module->active = false;
-                $module->update();
-                return $this->redirect(['index']);
+            if ($module = $this->findModel($id)) {
+                if ($module->active == true) {
+                    $module->active = false;
+                    $module->update();
+                    return $this->redirect(['index']);
+                } else {
+                    $module->active = true;
+                    $module->update();
+                    return $this->redirect(['index']);
+                }
             } else {
-                $module->active = true;
-                $module->update();
-                return $this->redirect(['index']);
+                throw new yii\web\NotFoundHttpException('');
             }
         } else {
-            throw new yii\web\NotFoundHttpException('');
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Activate/Deactivate Apps '));
         }
     }
 
