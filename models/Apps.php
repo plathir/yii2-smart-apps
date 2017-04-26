@@ -4,6 +4,7 @@ namespace plathir\apps\models;
 
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use plathir\apps\models\AppsMenu;
 
 /**
  * This is the model class for table "apps".
@@ -21,25 +22,23 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $created_at
  * @property integer $updated_at
  */
-class Apps extends \yii\db\ActiveRecord
-{
+class Apps extends \yii\db\ActiveRecord {
+
     public $file;
     public $FileName;
     public $Destination;
-    
+
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'apps';
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['name', 'descr', 'type', 'alias', 'app_key', 'vendor', 'vendor_email', 'version'], 'required'],
             [['name'], 'unique'],
@@ -53,8 +52,7 @@ class Apps extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
@@ -71,10 +69,15 @@ class Apps extends \yii\db\ActiveRecord
         ];
     }
 
-        public function behaviors() {
+    public function behaviors() {
         return [
             TimestampBehavior::className(),
         ];
     }
-    
+
+    public function getMenu() {
+       // return 100;
+        return $this->hasOne(AppsMenu::className(), ['app_name' => 'name']);
     }
+
+}

@@ -26,6 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'vendor',
             'vendor_email:email',
             'version',
+            'menu',
             'created_at:datetime',
             'updated_at:datetime',
         ],
