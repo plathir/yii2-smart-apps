@@ -17,4 +17,6 @@ class Module extends \yii\base\Module {
         $this->uploadZipPath = Yii::getAlias('@apps') . '/uploads';
     }
 
+    
+    
 }
