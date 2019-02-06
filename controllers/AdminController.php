@@ -1,5 +1,4 @@
 <?php
-
 namespace plathir\apps\controllers;
 
 use Yii;
@@ -306,53 +305,15 @@ class AdminController extends Controller {
         return \simplexml_load_file($xmlFile);
     }
 
-
     /**
      * 
      * @param type $appName
      */
     public function MigrateUp($appName) {
-            $classname = 'apps\\' . $appName . '\migrations\AppMigration';
-            if (class_exists($classname)) {
-                $migration = new $classname;
-                $migration->up();
-            }
-    }
-
-    /**
-     * 
-     * @param type $appName
-     */
-    public function MigrateDown($appName) {
-            $classname = 'apps\\' . $appName . '\migrations\AppMigration';
-            if (class_exists($classname)) {
-                $migration = new $classname;
-                $migration->down();
-            }
-    }
-
-    /**
-     * 
-     * @param type $appName
-     */
-    public function MigrateUp1($appName) {
-
-        if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
-            $oldApp = \Yii::$app;
-            $file_stdout = Yii::getAlias('@apps/') . DIRECTORY_SEPARATOR . $appName . '_migration_stdout.txt';
-            if (!defined('STDOUT')) {
-                define('STDOUT', fopen($file_stdout, 'w'));
-            }
-
-            $migration = new \yii\console\controllers\MigrateController('migrate', Yii::$app);
-            $migration->runAction('up', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => FALSE]);
-
-//            $handle = fopen('/tmp/stdout', 'r');
-//            $message = '';
-//            while (($buffer = fgets($handle, 4096)) !== false) {
-//                $message .= $buffer . "<br>";
-//            }
-//            fclose($handle);
+        $classname = 'apps\\' . $appName . '\migrations\AppMigration';
+        if (class_exists($classname)) {
+            $migration = new $classname;
+            $migration->up();
         }
     }
 
@@ -360,29 +321,11 @@ class AdminController extends Controller {
      * 
      * @param type $appName
      */
-    public function MigrateDown1($appName) {
-
-        if (\file_exists(Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'migrations')) {
-            $file_stdout = Yii::getAlias('@apps') . DIRECTORY_SEPARATOR . $appName . '_migration_stdout.txt';
-
-            if (!defined('STDOUT')) {
-                define('STDOUT', fopen($file_stdout, 'w'));
-            }
-            $migration = new \yii\console\controllers\MigrateController('migrate', Yii::$app);
-
-            $migration->runAction('down', ['migrationPath' => '@apps/' . $appName . '/migrations/', 'interactive' => FALSE]);
-            $migration->init();
-
-//            $oldApp = \Yii::$app;
-//            new \yii\console\Application([
-//                'id' => 'Command runner',
-//                'basePath' => '@app',
-//                'components' => [
-//                    'db' => $oldApp->db,
-//                ],
-//            ]);
-//            \Yii::$app->runAction('migrate/down', ['migrationPath' => '@apps/' . $appName . '/migrations/' . DIRECTORY_SEPARATOR, 'interactive' => false]);
-//            \Yii::$app = $oldApp;
+    public function MigrateDown($appName) {
+        $classname = 'apps\\' . $appName . '\migrations\AppMigration';
+        if (class_exists($classname)) {
+            $migration = new $classname;
+            $migration->down();
         }
     }
 
