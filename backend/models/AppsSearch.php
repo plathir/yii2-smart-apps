@@ -1,11 +1,11 @@
 <?php
 
-namespace plathir\apps\models;
+namespace plathir\apps\backend\models;
 
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use plathir\apps\models\Apps;
+use plathir\apps\backend\models\Apps;
 
 /**
  * AppsSearch represents the model behind the search form about `app\apps\models\Apps`.

@@ -1,9 +1,9 @@
 <?php
-namespace plathir\apps\controllers;
+namespace plathir\apps\backend\controllers;
 
 use Yii;
-use plathir\apps\models\Apps;
-use plathir\apps\models\AppsSearch;
+use plathir\apps\backend\models\Apps;
+use plathir\apps\backend\models\AppsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

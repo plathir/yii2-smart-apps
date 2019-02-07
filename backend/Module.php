@@ -1,11 +1,11 @@
 <?php
-namespace plathir\apps;
+namespace plathir\apps\backend;
 
 use Yii;
 
 class Module extends \yii\base\Module {
 
-    public $controllerNamespace = 'plathir\apps\controllers';
+    public $controllerNamespace = 'plathir\apps\backend\controllers';
     public $defaultRoute = 'dashboard';
     public $appsExtractPath = '';
     public $uploadZipPath = '';

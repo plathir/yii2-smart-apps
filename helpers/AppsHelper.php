@@ -2,7 +2,7 @@
 
 namespace plathir\apps\helpers;
 
-use plathir\apps\models\AppsSearch;
+use plathir\apps\backend\models\AppsSearch;
 
 class AppsHelper {
 

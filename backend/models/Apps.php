@@ -1,10 +1,10 @@
 <?php
 
-namespace plathir\apps\models;
+namespace plathir\apps\backend\models;
 
 use Yii;
 use yii\behaviors\TimestampBehavior;
-use plathir\apps\models\AppsMenu;
+use plathir\apps\backend\models\AppsMenu;
 
 /**
  * This is the model class for table "apps".

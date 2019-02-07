@@ -1,10 +1,10 @@
 <?php
 
-namespace plathir\apps\controllers;
+namespace plathir\apps\backend\controllers;
 
 use Yii;
 use yii\web\Controller;
-use plathir\apps\models\AppsSearch;
+use plathir\apps\backend\models\AppsSearch;
 
 class DashboardController extends Controller {
 
