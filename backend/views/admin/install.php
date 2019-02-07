@@ -11,9 +11,6 @@ $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Apps'), 'url' => ['i
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="apps-create">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <?= $this->render('_form_install', [
         'model' => $model,
     ]) ?>
