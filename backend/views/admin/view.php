@@ -21,6 +21,17 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div><!-- /.box-header -->
         <div class="box-body">
+
+            <p>
+                <?=
+                Html::a(Yii::t('app', 'Uninstall'), ['admin/uninstall', 'id' => $model->id], [
+                    'class' => 'btn btn-danger btn-flat',
+                    'data-method' => 'post',
+                    'data-confirm' => Yii::t('app', 'Are you sure you want to uninstall application ?')
+                ])
+                ?>
+            </p>
+
             <?=
             DetailView::widget([
                 'model' => $model,
