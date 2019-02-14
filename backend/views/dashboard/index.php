@@ -21,25 +21,32 @@ $this->params['breadcrumbs'][] = $this->title;
             $img = $bundle->baseUrl . $application->app_icon;
             ?>
             <div class="col-lg-3 col-md-6 col-xs-12" >
-                <div class="thumbnail"> 
-                    <div class="panel panel-default">
-                        <!-- Default panel contents -->
-                        <div class="panel-heading">
-                            <h3><?= $application->name ?></h3>
+                <div class="box box-danger">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"><?= $application->name ?></h3>
+                        <div class="box-tools pull-right">
+                            <button class="btn btn-flat btn-loader btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button class="btn btn-flat btn-loader btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
                         </div>
-
-                        <div class="panel-body">
-                            <?php
-                            echo Html::a(Html::img($img, ['alt' => '...',
-                                        'width' => '80',
-                                            ]
-                                    ), ["/$application->name"], ['class' => 'btn btn-default']);
-                            ?>
-                            <p><?= $application->descr ?></p>
-                            <?= Html::a('More &raquo;', ["/$application->name"], ['class' => 'btn btn-default btn-flat']) ?>  
-                            <?= Html::a('Settings &raquo;', ["/$application->name".'/settings'], ['class' => 'btn btn-default btn-flat']) ?>  
-                        </div>
-                    </div>
+                    </div><!-- /.box-header -->
+                    <div class="box-body">
+                        <?php
+                        echo Html::a(Html::img($img, ['alt' => '...',
+                                    'width' => '80',
+                                        ]
+                                ), ["/$application->name"], ['class' => 'btn btn-default']);
+                        ?>
+                        <p><?= $application->descr ?></p>
+                        <?= Html::a('More &raquo;', ['/apps/admin/view', 'id' => $application->id], ['class' => 'btn btn-default btn-flat']) ?>  
+                        <?= Html::a('Settings &raquo;', ["/$application->name" . '/settings'], ['class' => 'btn btn-default btn-flat']) ?>              
+                        <?=
+                        Html::a('Deactivate', ['/apps/admin/activate', 'id' => $application->id], [
+                            'class' => 'btn btn-danger btn-flat',
+                            'data-method' => 'post',
+                            'data-confirm' => 'Are you sure you want to Deactivate application ?'
+                        ])
+                        ?>  
+                    </div> 
                 </div>
             </div>
             <?php

@@ -336,17 +336,18 @@ class AdminController extends Controller {
      * @throws yii\web\NotFoundHttpException
      */
     public function actionActivate($id) {
+        
         if (\yii::$app->user->can('AppsActivate')) {
-
             if ($module = $this->findModel($id)) {
                 if ($module->active == true) {
                     $module->active = false;
                     $module->update();
-                    return $this->redirect(['index']);
+                    return $this->redirect(Yii::$app->request->referrer ?: $this->redirect(['index']));
                 } else {
                     $module->active = true;
                     $module->update();
-                    return $this->redirect(['index']);
+                    //return $this->redirect(['index']);
+                    return $this->redirect(Yii::$app->request->referrer ?: $this->redirect(['index']));                    
                 }
             } else {
                 throw new yii\web\NotFoundHttpException('');
