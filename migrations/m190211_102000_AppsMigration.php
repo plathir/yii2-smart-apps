@@ -36,7 +36,7 @@ class m190211_102000_AppsMigration extends Migration {
             'app_icon' => $this->string(255)->notNull(),
             'created_at' => $this->integer(11)->notNull(),
             'updated_at' => $this->integer(11)->notNull(),
-        ]);
+        ], 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB');
 
         $this->addPrimaryKey('pk_id', 'apps', ['id']);
     }
@@ -47,7 +47,7 @@ class m190211_102000_AppsMigration extends Migration {
         $this->createTable('apps_menu', [
             'app_name' => $this->string(50)->notNull(),
             'menu_id' => $this->integer(11)->notNull(),
-        ]);
+        ], 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB');
 
         $this->addPrimaryKey('pk_id', 'apps_menu', ['app_name']);
     }
