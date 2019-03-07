@@ -23,7 +23,7 @@ class m190211_102000_AppsMigration extends Migration {
         $this->dropIfExist('apps');
 
         $this->createTable('apps', [
-            'id' => $this->integer(11)->notNull(),
+            'id' => $this->primaryKey()->notNull(),
             'name' => $this->string(255)->notNull(),
             'descr' => $this->string()->notNull(),
             'type' => $this->string(255)->notNull(),
@@ -38,7 +38,6 @@ class m190211_102000_AppsMigration extends Migration {
             'updated_at' => $this->integer(11)->notNull(),
         ], 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB');
 
-        $this->addPrimaryKey('pk_id', 'apps', ['id']);
     }
 
         public function CreateAppsMenuTable() {
