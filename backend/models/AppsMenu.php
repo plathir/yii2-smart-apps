@@ -16,7 +16,7 @@ class AppsMenu extends \yii\db\ActiveRecord {
      * @inheritdoc
      */
     public static function tableName() {
-        return 'apps_menu';
+        return '{{%apps_menu}}';
     }
 
     /**

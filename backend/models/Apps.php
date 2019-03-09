@@ -32,7 +32,7 @@ class Apps extends \yii\db\ActiveRecord {
      * @inheritdoc
      */
     public static function tableName() {
-        return 'apps';
+        return '{{%apps}}';
     }
 
     /**

@@ -22,7 +22,7 @@ class m190211_102000_AppsMigration extends Migration {
     public function CreateAppsTable() {
         $this->dropIfExist('apps');
 
-        $this->createTable('apps', [
+        $this->createTable('{{%apps}}', [
             'id' => $this->primaryKey()->notNull(),
             'name' => $this->string(255)->notNull(),
             'descr' => $this->string()->notNull(),
@@ -43,19 +43,19 @@ class m190211_102000_AppsMigration extends Migration {
         public function CreateAppsMenuTable() {
         $this->dropIfExist('apps_menu');
 
-        $this->createTable('apps_menu', [
+        $this->createTable('{{%apps_menu}}', [
             'app_name' => $this->string(50)->notNull(),
             'menu_id' => $this->integer(11)->notNull(),
         ], 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB');
 
-        $this->addPrimaryKey('pk_id', 'apps_menu', ['app_name']);
+        $this->addPrimaryKey('pk_id', '{{%apps_menu}}', ['app_name']);
     }
     
     
     
     public function dropIfExist($tableName) {
-        if (in_array($tableName, $this->getDb()->schema->tableNames)) {
-            $this->dropTable($tableName);
+        if (in_array($this->db->tablePrefix .$tableName, $this->getDb()->schema->tableNames)) {
+            $this->dropTable($this->db->tablePrefix .$tableName);
         }
     }
 
