@@ -1,6 +1,6 @@
 <?php
 
-namespace plathir\apps\components\migration;;
+namespace plathir\apps\components\migration;
 
 use yii\db\Schema;
 use yii\db\Migration;
@@ -8,14 +8,15 @@ use Yii;
 use \plathir\apps\components\migration\ReadDataXML;
 
 class AppMigration extends Migration {
-   public $appname ='';
+
+    public $appname = '';
 
     public function up() {
-
+        
     }
 
     public function getXMLData($appname) {
-        $filename = Yii::getAlias('@apps/'.$appname.'/migrations/Data.xml');
+        $filename = Yii::getAlias('@apps/' . $appname . '/migrations/Data.xml');
         $xml = file_get_contents($filename);
 
         $reader = new ReadDataXML();
@@ -25,8 +26,8 @@ class AppMigration extends Migration {
     }
 
     public function down() {
-
-        }
+        
+    }
 
     public function deleteExistValues($appname) {
         $this->delete('{{%menu}}', ['app' => $appname]);
@@ -156,8 +157,9 @@ class AppMigration extends Migration {
     }
 
     public function dropIfExist($tableName) {
-        if (in_array($this->db->tablePrefix .$tableName, $this->getDb()->schema->tableNames)) {
-            $this->dropTable($this->db->tablePrefix .$tableName);
+        if (in_array($this->db->tablePrefix . $tableName, $this->getDb()->schema->tableNames)) {
+            $this->dropTable($this->db->tablePrefix . $tableName);
         }
     }
+
 }
