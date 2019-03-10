@@ -1,6 +1,6 @@
 <?php
 
-namespace apps\glcomics\migrations;
+namespace plathir\apps\components\migration;;
 
 use yii\db\Schema;
 use yii\db\Migration;
