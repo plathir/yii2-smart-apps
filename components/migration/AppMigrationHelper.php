@@ -1,19 +1,13 @@
 <?php
-
 namespace plathir\apps\components\migration;
 
-use yii\db\Schema;
 use yii\db\Migration;
 use Yii;
 use \plathir\apps\components\migration\ReadDataXML;
 
-class AppMigration extends Migration {
+class AppMigrationHelper extends Migration {
 
     public $appname = '';
-
-    public function up() {
-        
-    }
 
     public function getXMLData($appname) {
         $filename = Yii::getAlias('@apps/' . $appname . '/migrations/Data.xml');
@@ -25,10 +19,6 @@ class AppMigration extends Migration {
         return $data;
     }
 
-    public function down() {
-        
-    }
-
     public function deleteExistValues($appname) {
         $this->delete('{{%menu}}', ['app' => $appname]);
         $this->delete('{{%apps_menu}}', ['app_name' => $appname]);
@@ -38,17 +28,6 @@ class AppMigration extends Migration {
         $this->delete('{{%widgets_layouts}}', ['module_name' => 'frontend-' . $appname]);
         $this->delete('{{%widgets_types}}', ['module_name' => 'backend-' . $appname]);
         $this->delete('{{%widgets_types}}', ['module_name' => 'frontend-' . $appname]);
-    }
-
-    public function CreateAppTables() {
-
-        $this->dropIfExist('cmc_comics');
-        $this->deleteExistValues('glcomics');
-
-        $this->createTable('{{%cmc_comics}}', [
-            'id' => $this->PrimaryKey(),
-            'title' => $this->string()->notNull(),
-        ]);
     }
 
     public Function CreateAppWidgetTypes($widget_types) {
@@ -94,6 +73,16 @@ class AppMigration extends Migration {
                     'rules' => $widget["rules"],
                     'created_at' => $widget["created_at"],
                     'updated_at' => $widget["updated_at"],
+                ]);
+
+                $id = Yii::$app->db->getLastInsertID();
+                $posSortOrder[$widget["position"]][] = $id;
+            }
+            
+            foreach ($posSortOrder as $position => $positiondata) {
+                $this->insert('{{%widgets_positions_sorder}}', [
+                    'position_tech_name' => $position,
+                    'widget_sort_order' => implode(',', $positiondata)
                 ]);
             }
         }

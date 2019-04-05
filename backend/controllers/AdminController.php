@@ -141,7 +141,7 @@ class AdminController extends Controller {
             }
             $this->deleteZip($model->FileName);
             // search if application with same name exists
-            $h_model = \plathir\apps\models\Apps::find()->where(['name' => $model->name])->One();
+            $h_model = Apps::find()->where(['name' => $model->name])->One();
             if ($h_model == null) {
                 // Delete application files only if another application exist         
                 $this->DeleteAppFiles($model->Destination . '/' . \basename($model->file->name, ".zip"));
