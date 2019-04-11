@@ -90,6 +90,7 @@ class ReadDataXML {
      * @return type
      */
     function array_set_depth($array, $depth = -1) {
+        $temp = '';
         $subdepth = $depth + 1;
         if ($depth < 0) {
             foreach ($array as $key => $subarray) {
