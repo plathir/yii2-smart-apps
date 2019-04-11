@@ -9,12 +9,12 @@ class ReadDataXML {
     public $Menu;
     public $new_menu;
 
-/**
- *  Read XML
- * 
- * @param type $xmlfile
- * @return type
- */
+    /**
+     *  Read XML
+     * 
+     * @param type $xmlfile
+     * @return type
+     */
     public function readxml($xmlfile) {
 
         $xml = simplexml_load_string($xmlfile);
@@ -33,8 +33,8 @@ class ReadDataXML {
      * @return string
      */
     public function parseElement($xmldata) {
-        $h_element = '';
-        $h_elements = '';
+        $h_element = [];
+        $h_elements = [];
         foreach ($xmldata as $element_val) {
             foreach ($element_val as $key => $val) {
                 if ($key == 'items') {
@@ -44,7 +44,7 @@ class ReadDataXML {
                 }
             }
             $h_elements[] = $h_element;
-            $h_element = '';
+            $h_element = [];
         }
         return $h_elements;
     }
