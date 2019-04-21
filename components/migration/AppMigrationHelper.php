@@ -1,4 +1,5 @@
 <?php
+
 namespace plathir\apps\components\migration;
 
 use yii\db\Migration;
@@ -78,7 +79,7 @@ class AppMigrationHelper extends Migration {
                 $id = Yii::$app->db->getLastInsertID();
                 $posSortOrder[$widget["position"]][] = $id;
             }
-            
+
             foreach ($posSortOrder as $position => $positiondata) {
                 $this->insert('{{%widgets_positions_sorder}}', [
                     'position_tech_name' => $position,
@@ -148,6 +149,13 @@ class AppMigrationHelper extends Migration {
     public function dropIfExist($tableName) {
         if (in_array($this->db->tablePrefix . $tableName, $this->getDb()->schema->tableNames)) {
             $this->dropTable($this->db->tablePrefix . $tableName);
+        }
+    }
+
+    public function createFolderIfNotExist($folder) {
+        $path = Yii::getAlias($folder);
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
         }
     }
 
