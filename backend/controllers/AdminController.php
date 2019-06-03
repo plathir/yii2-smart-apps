@@ -1,4 +1,5 @@
 <?php
+
 namespace plathir\apps\backend\controllers;
 
 use Yii;
@@ -79,7 +80,7 @@ class AdminController extends Controller {
                 if (($model->file = UploadedFile::getInstance($model, 'file')) &&
                         ( $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name) ) && ($model->FileName = $this->module->uploadZipPath . '/' . $model->file->name )) {
 
-                    $this->ExtractAndInstallApp($model);
+                    $this->ExtractAndInstallApp($model);                    
                 } else {
                     Yii::$app->getSession()->setFlash('danger', 'Application cannot upload !');
                     return $this->redirect(['index']);
@@ -104,6 +105,7 @@ class AdminController extends Controller {
         if ($this->ExtractFile($model->FileName, $model->Destination)) {
             $model = $this->FillModelValuesFromAppFiles($model);
             $this->MigrateUp($model->name);
+            $this->BuildViews($model->name, 'smart');
             $this->installApp($model);
         } else {
             Yii::$app->getSession()->setFlash('danger', 'Application cannot extract !');
@@ -185,6 +187,7 @@ class AdminController extends Controller {
             }
             $this->MigrateDown($appName);
             $this->DeleteAppFiles($destination . '/' . $appName);
+            $this->RemoveBuildedTheme($appName, 'smart');
             Yii::$app->getSession()->setFlash('success', 'Uninstall Application : ' . $appName . ' succesfull !');
         } else {
             Yii::$app->getSession()->setFlash('danger' . 'Application : ' . $appName . ' cannot uninstall !');
@@ -336,7 +339,7 @@ class AdminController extends Controller {
      * @throws yii\web\NotFoundHttpException
      */
     public function actionActivate($id) {
-        
+
         if (\yii::$app->user->can('AppsActivate')) {
             if ($module = $this->findModel($id)) {
                 if ($module->active == true) {
@@ -347,7 +350,7 @@ class AdminController extends Controller {
                     $module->active = true;
                     $module->update();
                     //return $this->redirect(['index']);
-                    return $this->redirect(Yii::$app->request->referrer ?: $this->redirect(['index']));                    
+                    return $this->redirect(Yii::$app->request->referrer ?: $this->redirect(['index']));
                 }
             } else {
                 throw new yii\web\NotFoundHttpException('');
@@ -357,4 +360,84 @@ class AdminController extends Controller {
         }
     }
 
+    public function BuildViews($appname, $theme) {
+
+        $apps = [
+            "$appname" => ['path' => Yii::getalias("@apps") . DIRECTORY_SEPARATOR . $appname],
+        ];
+
+        $results = [];
+        foreach ($apps as $appkey => $app) {
+            if ($this->BuildModuleViews($appkey, $app['path'])) {
+                $results[$appkey] = 'Views Builded !';
+            } else {
+                $results[$appkey] = 'Views Cannot Build !';
+            }
+        }
+        return $results;
+    }
+
+    public function BuildModuleViews($appName, $appPath) {
+        try {
+            $this->BuildViewsFiles('backend', 'admin', $appName, $appPath);
+            $this->BuildWidgetsViewsFiles('backend', 'admin', $appName, $appPath);
+
+
+            $this->BuildViewsFiles('frontend', 'site', $appName, $appPath);
+            $this->BuildWidgetsViewsFiles('frontend', 'site', $appName, $appPath);
+            return true;
+        } catch (Exception $ex) {
+            return false;
+        }
+    }
+
+    public function BuildViewsFiles($app, $env, $appName, $appPath) {
+
+        $sourceViewsPath = $appPath . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . 'smart';
+        $targetViewsPath = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . $env . DIRECTORY_SEPARATOR . 'smart' . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
+
+        if (file_exists($sourceViewsPath)) {
+            if (!file_exists($targetViewsPath)) {
+                @mkdir($targetViewsPath);
+            }
+            $this->recursive_copy($sourceViewsPath, $targetViewsPath);
+        }
+    }
+
+    public function BuildWidgetsViewsFiles($app, $env, $appName, $appPath) {
+
+        $sourceViewsPath = $appPath . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'widgets' . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . 'smart';
+        $targetViewsPath = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . $env . DIRECTORY_SEPARATOR . 'smart' . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR . 'widgets';
+        if (file_exists($sourceViewsPath)) {
+            if (!file_exists($targetViewsPath)) {
+                @mkdir($targetViewsPath);
+            }
+            $this->recursive_copy($sourceViewsPath, $targetViewsPath);
+        }
+    }
+
+    public function recursive_copy($src, $dst) {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while (( $file = readdir($dir))) {
+            if (( $file != '.' ) && ( $file != '..' )) {
+                if (is_dir($src . DIRECTORY_SEPARATOR . $file)) {
+                    $this->recursive_copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+                } else {
+                    copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+                }
+            }
+        }
+        closedir($dir);
+    }
+    
+    public function RemoveBuildedTheme($appName,$theme) {
+        
+        $backendTheme = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
+        $frontendTheme = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . 'site'  . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
+        
+        $this->DeleteAppFiles($backendTheme);
+        $this->DeleteAppFiles($frontendTheme);
+    }
+            
 }
