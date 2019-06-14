@@ -29,6 +29,7 @@ class AdminController extends Controller {
                     'delete' => ['post'],
                     'activate' => ['post'],
                     'uninstall' => ['post'],
+                    'buildtheme'
                 ],
             ],
         ];
@@ -114,6 +115,12 @@ class AdminController extends Controller {
         }
     }
 
+    
+    public function actionBuildtheme($appname, $theme ) {
+         $this->BuildViews($appname, $theme);
+         return $this->redirect(['index']);
+    }
+    
     /**
      * 
      * @param type $model

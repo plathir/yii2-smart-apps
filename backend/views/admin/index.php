@@ -67,7 +67,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     // ['class' => 'yii\grid\ActionColumn'],
                     [
                         'class' => 'yii\grid\ActionColumn',
-                        'template' => '{uninstall}',
+                        'template' => '{uninstall}{buildtheme}',
                         'buttons' => [
                             'uninstall' => function ($url, $model) {
                                 return Html::a('<span class="glyphicon glyphicon-remove"></span>', $url, [
@@ -75,13 +75,25 @@ $this->params['breadcrumbs'][] = $this->title;
                                             'data-method' => 'post',
                                             'data-confirm' => 'Are you sure you want to uninstall application ?'
                                 ]);
-                            }
+                            },
+                            'buildtheme' => function ($url, $model) {
+                                return Html::a('<span class="glyphicon glyphicon-check"></span>', $url, [
+                                            'title' => Yii::t('app', 'Build Theme'),
+                                          //  'data-method' => 'post',
+                                          //  'data-confirm' => 'Are you sure you want to uninstall application ?'
+                                ]);
+                            },                                    
+                                    
                         ],
                         'urlCreator' => function ($action, $model, $key, $index) {
                             if ($action === 'uninstall') {
                                 $url = Url::to(['admin/uninstall', 'id' => $model->id]);
                                 return $url;
                             }
+                            if ($action === 'buildtheme') {
+                                $url = Url::to(['admin/buildtheme', 'appname' => $model->name, 'theme' => 'smart' ]);
+                                return $url;
+                            }                            
                         }
                     ],
                 ],
