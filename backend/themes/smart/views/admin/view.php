@@ -30,6 +30,34 @@ $this->params['breadcrumbs'][] = $this->title;
                     'data-confirm' => Yii::t('app', 'Are you sure you want to uninstall application ?')
                 ])
                 ?>
+                <?=
+                Html::a(Yii::t('app', 'Reload App Defaults'), ['admin/reloadxml', 'appName' => $model->name], [
+                    'class' => 'btn btn-primary btn-flat',
+                    'data-method' => 'post',
+                    'data-confirm' => Yii::t('app', 'Are you sure you want to reload application defaults ?')
+                ])
+                ?>
+                <?=
+                Html::a(Yii::t('app', 'Reload App Permissions'), ['admin/reloadpermissions', 'appName' => $model->name], [
+                    'class' => 'btn btn-primary btn-flat',
+                    'data-method' => 'post',
+                    'data-confirm' => Yii::t('app', 'Are you sure you want to reload application Permissions ?')
+                ])
+                ?>      
+                <?=
+                Html::a(Yii::t('app', 'Reload App Settings'), ['admin/reloadsettings', 'appName' => $model->name], [
+                    'class' => 'btn btn-primary btn-flat',
+                    'data-method' => 'post',
+                    'data-confirm' => Yii::t('app', 'Are you sure you want to reload application Settings ?')
+                ])
+                ?>                 
+                <?=
+                Html::a(Yii::t('app', 'Reload App Tables'), ['admin/reloadtables', 'appName' => $model->name], [
+                    'class' => 'btn btn-primary btn-flat',
+                    'data-method' => 'post',
+                    'data-confirm' => Yii::t('app', 'Are you sure you want to reload application Tables ?')
+                ])
+                ?> 
             </p>
 
             <?=

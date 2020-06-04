@@ -10,6 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
 use yii\base\UserException;
+use \plathir\apps\components\migration\AppMigrationHelper;
 
 /**
  * AppsController implements the CRUD actions for Apps model.
@@ -29,6 +30,10 @@ class AdminController extends Controller {
                     'delete' => ['post'],
                     'activate' => ['post'],
                     'uninstall' => ['post'],
+                    'reloadxml' => ['post'],
+                    'reloadpermissions' => ['post'],
+                    'reloadsettings' => ['post'],
+                    'reloadtables' => ['post'],
                     'buildtheme'
                 ],
             ],
@@ -81,7 +86,7 @@ class AdminController extends Controller {
                 if (($model->file = UploadedFile::getInstance($model, 'file')) &&
                         ( $model->file->saveAs($this->module->uploadZipPath . '/' . $model->file->name) ) && ($model->FileName = $this->module->uploadZipPath . '/' . $model->file->name )) {
 
-                    $this->ExtractAndInstallApp($model);                    
+                    $this->ExtractAndInstallApp($model);
                 } else {
                     Yii::$app->getSession()->setFlash('danger', 'Application cannot upload !');
                     return $this->redirect(['index']);
@@ -115,12 +120,11 @@ class AdminController extends Controller {
         }
     }
 
-    
-    public function actionBuildtheme($appname, $theme ) {
-         $this->BuildViews($appname, $theme);
-         return $this->redirect(['index']);
+    public function actionBuildtheme($appname, $theme) {
+        $this->BuildViews($appname, $theme);
+        return $this->redirect(['index']);
     }
-    
+
     /**
      * 
      * @param type $model
@@ -437,14 +441,136 @@ class AdminController extends Controller {
         }
         closedir($dir);
     }
-    
-    public function RemoveBuildedTheme($appName,$theme) {
-        
+
+    public function RemoveBuildedTheme($appName, $theme) {
+
         $backendTheme = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
-        $frontendTheme = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . 'site'  . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
-        
+        $frontendTheme = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . 'site' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
+
         $this->DeleteAppFiles($backendTheme);
         $this->DeleteAppFiles($frontendTheme);
     }
-            
+
+    public function actionReloadxml($appName) {
+
+        if (\yii::$app->user->can('AppsReloadXML')) {
+            if ($this->ReloadAppXML($appName)) {
+                Yii::$app->getSession()->setFlash('success', ' Reload App Defaults Successfully !');
+            } else {
+                Yii::$app->getSession()->setFlash('danger', 'Cannot Reload App Defaults !');
+            }
+            return $this->redirect(['index']);
+        } else {
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Reload App Defaults '));
+        }
+    }
+
+    public function ReloadAppXML($appName) {
+
+
+        $appsMigr = new AppMigrationHelper();
+
+        $data = $appsMigr->getXMLData($appName);
+
+        if ($data) {
+            $layouts = array_key_exists("Layouts", $data) ? $data["Layouts"] : '';
+            $widget_types = array_key_exists("WidgetTypes", $data) ? $data["WidgetTypes"] : '';
+            $widgets = array_key_exists("Widgets", $data) ? $data["Widgets"] : '';
+            $positions = array_key_exists("Positions", $data) ? $data["Positions"] : '';
+            $menu = array_key_exists("Menu", $data) ? $data["Menu"] : '';
+
+            $appsMigr->deleteExistValues($appName);
+
+            $appsMigr->CreateAppWidgetTypes($widget_types);
+
+            $appsMigr->CreateAppPositions($positions);
+
+            $appsMigr->CreateAppWidgets($widgets);
+
+            $appsMigr->CreateAppMenu($menu);
+
+            $appsMigr->CreateAppLayouts($layouts);
+
+            return true;
+        } else
+            return false;
+    }
+
+    public function actionReloadpermissions($appName) {
+
+        if (\yii::$app->user->can('AppsReloadPermissions')) {
+            if ($this->ReloadAppPermissions($appName)) {
+                Yii::$app->getSession()->setFlash('success', ' Reload Permissions Successfully !');
+            } else {
+                Yii::$app->getSession()->setFlash('danger', 'Cannot Reload Permissions !');
+            }
+
+            return $this->redirect(['index']);
+        } else {
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Reload App Default Permissions '));
+        }
+    }
+
+    public function ReloadAppPermissions($appName) {
+
+        $classname = 'apps\\' . $appName . '\backend\helper\Permissions';
+        if (class_exists($classname)) {
+            $permissions = new $classname;
+            $permissions->create();
+            return true;
+        } else
+            return false;
+    }
+
+    public function actionReloadsettings($appName) {
+
+        if (\yii::$app->user->can('AppsReloadSettings')) {
+            if ($this->ReloadAppSettings($appName)) {
+                Yii::$app->getSession()->setFlash('success', ' Reload Settings Successfully !');
+            } else {
+                Yii::$app->getSession()->setFlash('danger', 'Cannot Reload Settings !');
+            }
+            return $this->redirect(['index']);
+        } else {
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Reload App Defaults '));
+        }
+    }
+
+    public function ReloadAppSettings($appName) {
+
+        $classname = 'apps\\' . $appName . '\backend\helper\Settings';
+        if (class_exists($classname)) {
+            $settings = new $classname;
+            $settings->create();
+            return true;
+        } else
+            return false;
+    }
+
+    public function actionReloadtables($appName) {
+
+        if (\yii::$app->user->can('AppsReloadTables')) {
+            if ($this->ReloadAppTables($appName)) {
+                Yii::$app->getSession()->setFlash('success', ' Reload Tables Successfully !');
+            } else {
+                Yii::$app->getSession()->setFlash('danger', 'Cannot Reload Tables !');
+            }
+            return $this->redirect(['index']);
+        } else {
+            throw new \yii\web\NotAcceptableHttpException(Yii::t('app', 'No Permission to Reload App Tables '));
+        }
+    }
+
+    public function ReloadAppTables($appName) {
+
+        $classname = 'apps\\' . $appName . '\migrations\AppMigration';
+        if (class_exists($classname)) {
+            $migr = new $classname;
+            $migr->CreateAppTables();
+            $this->ReloadAppXML($appName);
+            return true;
+        } else
+            return false;
+    }
+
 }
