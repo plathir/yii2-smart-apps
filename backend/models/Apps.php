@@ -44,6 +44,7 @@ class Apps extends \yii\db\ActiveRecord {
             [['name'], 'unique'],
             [['descr'], 'string'],
             [['file'], 'file'],
+            [['active'], 'integer'],
             [['created_at', 'updated_at'], 'integer'],
             [['name', 'type', 'alias', 'app_key', 'vendor', 'vendor_email', 'version', 'app_icon'], 'string', 'max' => 255]
         ];
@@ -63,6 +64,7 @@ class Apps extends \yii\db\ActiveRecord {
             'vendor' => Yii::t('app', 'Vendor'),
             'vendor_email' => Yii::t('app', 'Vendor Email'),
             'version' => Yii::t('app', 'Version'),
+            'active' => Yii::t('app', 'Active'),
             'app_icon' => Yii::t('app', 'App Icon'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),

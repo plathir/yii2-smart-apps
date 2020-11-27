@@ -81,6 +81,8 @@ class AdminController extends Controller {
         if (\yii::$app->user->can('AppsInstall')) {
             $model = new Apps();
             $model->Destination = $this->module->appsExtractPath;
+            
+            $model->active = 0;
 
             if ($model->load(Yii::$app->request->post())) {
                 if (($model->file = UploadedFile::getInstance($model, 'file')) &&
