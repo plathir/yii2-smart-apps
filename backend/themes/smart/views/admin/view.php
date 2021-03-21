@@ -24,35 +24,37 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <p>
                 <?=
-                Html::a(Yii::t('app', 'Uninstall'), ['admin/uninstall', 'id' => $model->id], [
+                Html::a(Yii::t('apps', 'Uninstall'), ['admin/uninstall', 'id' => $model->id], [
                     'class' => 'btn btn-danger btn-flat',
                     'data-method' => 'post',
                     'data-confirm' => Yii::t('app', 'Are you sure you want to uninstall application ?')
                 ])
                 ?>
                 <?=
-                Html::a(Yii::t('app', 'Reload App Defaults'), ['admin/reloadxml', 'appName' => $model->name], [
+                Html::a(Yii::t('apps', 'Reload App Defaults'), ['admin/reloadxml', 'appName' => $model->name], [
                     'class' => 'btn btn-primary btn-flat',
                     'data-method' => 'post',
                     'data-confirm' => Yii::t('app', 'Are you sure you want to reload application defaults ?')
                 ])
                 ?>
                 <?=
-                Html::a(Yii::t('app', 'Reload App Permissions'), ['admin/reloadpermissions', 'appName' => $model->name], [
+                Html::a(Yii::t('apps', 'Reload App Permissions'), ['admin/reloadpermissions', 'appName' => $model->name], [
                     'class' => 'btn btn-primary btn-flat',
                     'data-method' => 'post',
                     'data-confirm' => Yii::t('app', 'Are you sure you want to reload application Permissions ?')
                 ])
                 ?>      
+                <br>
+                <br>
                 <?=
-                Html::a(Yii::t('app', 'Reload App Settings'), ['admin/reloadsettings', 'appName' => $model->name], [
+                Html::a(Yii::t('apps', 'Reload App Settings'), ['admin/reloadsettings', 'appName' => $model->name], [
                     'class' => 'btn btn-primary btn-flat',
                     'data-method' => 'post',
                     'data-confirm' => Yii::t('app', 'Are you sure you want to reload application Settings ?')
                 ])
                 ?>                 
                 <?=
-                Html::a(Yii::t('app', 'Reload App Tables'), ['admin/reloadtables', 'appName' => $model->name], [
+                Html::a(Yii::t('apps', 'Reload App Tables'), ['admin/reloadtables', 'appName' => $model->name], [
                     'class' => 'btn btn-primary btn-flat',
                     'data-method' => 'post',
                     'data-confirm' => Yii::t('app', 'Are you sure you want to reload application Tables ?')

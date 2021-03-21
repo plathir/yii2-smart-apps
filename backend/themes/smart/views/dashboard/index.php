@@ -36,16 +36,20 @@ $this->params['breadcrumbs'][] = $this->title;
                                         ]
                                 ), ["/$application->name"], ['class' => 'btn btn-default']);
                         ?>
-                        <p><?= $application->descr ?></p>
-                        <?= Html::a('More &raquo;', ['/apps/admin/view', 'id' => $application->id], ['class' => 'btn btn-default btn-flat']) ?>  
-                        <?= Html::a('Settings &raquo;', ["/$application->name" . '/settings'], ['class' => 'btn btn-default btn-flat']) ?>              
-                        <?=
-                        Html::a('Deactivate', ['/apps/admin/activate', 'id' => $application->id], [
-                            'class' => 'btn btn-danger btn-flat',
-                            'data-method' => 'post',
-                            'data-confirm' => 'Are you sure you want to Deactivate application ?'
-                        ])
-                        ?>  
+                        <p><?= Yii::t($application->name, $application->descr ) ?></p>
+                        <?= Html::a(Yii::t('apps', 'More') . ' &raquo;', ['/apps/admin/view', 'id' => $application->id], ['class' => 'btn btn-default btn-flat']) ?>  
+                        <?= Html::a(Yii::t('apps', 'Settings') . ' &raquo;', ["/$application->name" . '/settings'], ['class' => 'btn btn-default btn-flat']) ?>              
+                        <br><br>
+                        <p>
+                            <?=
+                            Html::a(Yii::t('apps', 'Deactivate'), ['/apps/admin/activate', 'id' => $application->id], [
+                                'class' => 'btn btn-danger btn-flat',
+                                'data-method' => 'post',
+                                'data-confirm' => Yii::t('apps','Are you sure you want to Deactivate application ?')
+                            ])
+                            ?>  
+
+                        </p>                        
                     </div> 
                 </div>
             </div>

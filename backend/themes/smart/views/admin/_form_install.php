@@ -11,7 +11,7 @@ use yii\widgets\ActiveForm;
 <div class="apps-form">
     <div class="box box-danger">
         <div class="box-header with-border">
-            <h3 class="box-title"><?= Yii::t('app', 'Install new app') ?></h3>
+            <h3 class="box-title"><?= Yii::t('apps', 'Install new App') ?></h3>
             <div class="box-tools pull-right">
                 <button class="btn btn-flat btn-loader btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                 <button class="btn btn-flat btn-loader btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
@@ -19,11 +19,13 @@ use yii\widgets\ActiveForm;
         </div><!-- /.box-header -->
         <div class="box-body">
             <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
-            <?= $form->field($model, 'file')->fileInput() ?>
             <div class="form-group">
-                <?= Html::submitButton(Yii::t('app', 'Install'), ['class' => $model->isNewRecord ? 'btn btn-success btn-flat' : 'btn btn-primary btn-flat']) ?>
+                <?= $form->field($model, 'file')->fileInput() ?>
+                <div class="form-group">
+                    <?= Html::submitButton(Yii::t('apps', 'Install'), ['class' => $model->isNewRecord ? 'btn btn-success btn-flat' : 'btn btn-primary btn-flat']) ?>
+                </div>
+                <?php ActiveForm::end(); ?>            
             </div>
-            <?php ActiveForm::end(); ?>            
         </div>
     </div>
 </div>

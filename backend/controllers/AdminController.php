@@ -81,7 +81,7 @@ class AdminController extends Controller {
         if (\yii::$app->user->can('AppsInstall')) {
             $model = new Apps();
             $model->Destination = $this->module->appsExtractPath;
-            
+
             $model->active = 0;
 
             if ($model->load(Yii::$app->request->post())) {
@@ -355,8 +355,10 @@ class AdminController extends Controller {
 
         if (\yii::$app->user->can('AppsActivate')) {
             if ($module = $this->findModel($id)) {
+                echo $module->active . '<br>';
+                //   die();
                 if ($module->active == true) {
-                    $module->active = false;
+                    $module->active = 0;
                     $module->update();
                     return $this->redirect(Yii::$app->request->referrer ?: $this->redirect(['index']));
                 } else {

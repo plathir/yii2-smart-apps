@@ -55,19 +55,21 @@ class Apps extends \yii\db\ActiveRecord {
      */
     public function attributeLabels() {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'name' => Yii::t('app', 'Name'),
-            'descr' => Yii::t('app', 'Descr'),
-            'type' => Yii::t('app', 'Type'),
-            'alias' => Yii::t('app', 'Alias'),
-            'app_key' => Yii::t('app', 'App Key'),
-            'vendor' => Yii::t('app', 'Vendor'),
-            'vendor_email' => Yii::t('app', 'Vendor Email'),
-            'version' => Yii::t('app', 'Version'),
-            'active' => Yii::t('app', 'Active'),
-            'app_icon' => Yii::t('app', 'App Icon'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
+            'id' => Yii::t('apps', 'ID'),
+            'name' => Yii::t('apps', 'Name'),
+            'descr' => Yii::t('apps', 'Descr'),
+            'file' => Yii::t('apps', 'File'),
+            'type' => Yii::t('apps', 'Type'),
+            'alias' => Yii::t('apps', 'Alias'),
+            'app_key' => Yii::t('apps', 'App Key'),
+            'vendor' => Yii::t('apps', 'Vendor'),
+            'vendor_email' => Yii::t('apps', 'Vendor Email'),
+            'version' => Yii::t('apps', 'Version'),
+            'active' => Yii::t('apps', 'Active'),
+            'app_icon' => Yii::t('apps', 'App Icon'),
+            'created_at' => Yii::t('apps', 'Created At'),
+            'updated_at' => Yii::t('apps', 'Updated At'),
+            
         ];
     }
 
