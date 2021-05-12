@@ -114,6 +114,7 @@ class AdminController extends Controller {
             $model = $this->FillModelValuesFromAppFiles($model);
             $this->MigrateUp($model->name);
             $this->BuildViews($model->name, 'smart');
+            $this->BuildAssets($model->name, 'smart');
             $this->installApp($model);
         } else {
             Yii::$app->getSession()->setFlash('danger', 'Application cannot extract !');
@@ -124,6 +125,8 @@ class AdminController extends Controller {
 
     public function actionBuildtheme($appname, $theme) {
         $this->BuildViews($appname, $theme);
+        $this->BuildAssets($appname, $theme);
+
         return $this->redirect(['index']);
     }
 
@@ -392,6 +395,23 @@ class AdminController extends Controller {
         return $results;
     }
 
+    public function BuildAssets($appname, $theme) {
+
+        $apps = [
+            "$appname" => ['path' => Yii::getalias("@apps") . DIRECTORY_SEPARATOR . $appname],
+        ];
+
+        $results = [];
+        foreach ($apps as $appkey => $app) {
+            if ($this->BuildModuleAssets($appkey, $app['path'])) {
+                $results[$appkey] = 'Assets Builded !';
+            } else {
+                $results[$appkey] = 'Assets Cannot Build !';
+            }
+        }
+        return $results;
+    }
+
     public function BuildModuleViews($appName, $appPath) {
         try {
             $this->BuildViewsFiles('backend', 'admin', $appName, $appPath);
@@ -400,6 +420,16 @@ class AdminController extends Controller {
 
             $this->BuildViewsFiles('frontend', 'site', $appName, $appPath);
             $this->BuildWidgetsViewsFiles('frontend', 'site', $appName, $appPath);
+            return true;
+        } catch (Exception $ex) {
+            return false;
+        }
+    }
+
+    public function BuildModuleAssets($appName, $appPath) {
+        try {
+            $this->BuildAssetsFiles('backend', 'admin', $appName, $appPath);
+            $this->BuildAssetsFiles('frontend', 'site', $appName, $appPath);
             return true;
         } catch (Exception $ex) {
             return false;
@@ -416,6 +446,29 @@ class AdminController extends Controller {
                 @mkdir($targetViewsPath);
             }
             $this->recursive_copy($sourceViewsPath, $targetViewsPath);
+        }
+    }
+
+    public function BuildAssetsFiles($app, $env, $appName, $appPath) {
+
+        $sourceAssetsPath = $appPath . DIRECTORY_SEPARATOR .
+                $app . DIRECTORY_SEPARATOR .
+                'assets' . DIRECTORY_SEPARATOR .
+                'themes' . DIRECTORY_SEPARATOR .
+                'smart';
+        $targetAssetsPath = Yii::getalias("@realAppPath") . DIRECTORY_SEPARATOR .
+                'www' . DIRECTORY_SEPARATOR .
+                $env . DIRECTORY_SEPARATOR .
+                'themes' . DIRECTORY_SEPARATOR .
+                'smart' . DIRECTORY_SEPARATOR .
+                'apps' . DIRECTORY_SEPARATOR .
+                $appName;
+
+        if (file_exists($sourceAssetsPath)) {
+            if (!file_exists($targetAssetsPath)) {
+                @mkdir($targetViewsPath);
+            }
+            $this->recursive_copy($sourceAssetsPath, $targetAssetsPath);
         }
     }
 
@@ -451,8 +504,24 @@ class AdminController extends Controller {
         $backendTheme = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
         $frontendTheme = Yii::getalias("@themes") . DIRECTORY_SEPARATOR . 'site' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appName;
 
+        $backendThemeAssets = Yii::getalias("@RootPath") . DIRECTORY_SEPARATOR .
+                'admin' . DIRECTORY_SEPARATOR .
+                'themes' . DIRECTORY_SEPARATOR .
+                $theme . DIRECTORY_SEPARATOR .
+                'apps' . DIRECTORY_SEPARATOR .
+                $appName;
+        $frontendThemeAssets = Yii::getalias("@RootPath") . DIRECTORY_SEPARATOR . 
+                'site' . DIRECTORY_SEPARATOR . 
+                'themes' . DIRECTORY_SEPARATOR .
+                $theme . DIRECTORY_SEPARATOR . 
+                'apps' . DIRECTORY_SEPARATOR . 
+                $appName;
+
+
         $this->DeleteAppFiles($backendTheme);
         $this->DeleteAppFiles($frontendTheme);
+        $this->DeleteAppFiles($backendThemeAssets);
+        $this->DeleteAppFiles($frontendThemeAssets);
     }
 
     public function actionReloadxml($appName) {
