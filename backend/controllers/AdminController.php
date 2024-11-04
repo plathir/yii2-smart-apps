@@ -111,7 +111,7 @@ class AdminController extends Controller {
     public function ExtractAndInstallApp($model) {
 
         if ($this->ExtractFile($model->FileName, $model->Destination)) {
-            $model = $this->FillModelValuesFromAppFiles($model);
+            $model = $this->FillModelValuesFromAppFiles($model);           
             $this->MigrateUp($model->name);
             $this->BuildViews($model->name, 'smart');
             $this->BuildAssets($model->name, 'smart');
@@ -241,7 +241,7 @@ class AdminController extends Controller {
             $zip->close();
             return true;
         } else {
-            echo false;
+            return false;
         }
     }
 
@@ -358,8 +358,6 @@ class AdminController extends Controller {
 
         if (\yii::$app->user->can('AppsActivate')) {
             if ($module = $this->findModel($id)) {
-                echo $module->active . '<br>';
-                //   die();
                 if ($module->active == true) {
                     $module->active = 0;
                     $module->update();
@@ -400,7 +398,7 @@ class AdminController extends Controller {
         $apps = [
             "$appname" => ['path' => Yii::getalias("@apps") . DIRECTORY_SEPARATOR . $appname],
         ];
-
+            
         $results = [];
         foreach ($apps as $appkey => $app) {
             if ($this->BuildModuleAssets($appkey, $app['path'])) {
